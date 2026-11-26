@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#142e54"><title>Grammar Master</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6fb;color:#17243a;font-family:Arial,sans-serif}
+header{background:#142e54;color:white;padding:24px 18px;border-radius:0 0 22px 22px}
+h1{margin:0 0 7px;font-size:26px}header p{margin:0;color:#d7e5fa}
+main{max-width:720px;margin:auto;padding:16px}.sub{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+button{font:inherit;cursor:pointer}.course,.topic,.action{border:1px solid #d7dfeb;border-radius:13px;background:white;padding:14px;text-align:left}
+.course.active,.topic.active{border:2px solid #3978c8;background:#eaf2ff}
+.course b{display:block;margin:7px 0}.muted{color:#64748b;font-size:13px}
+h2{font-size:20px;margin:22px 0 12px}.topics{display:grid;gap:8px}
+.panel{background:white;border:1px solid #dce3ed;border-radius:15px;padding:16px;margin-top:14px;line-height:1.55}
+.tabs{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}.tabs button,.action{border:0;background:#e5ebf4;border-radius:9px;padding:10px 13px}
+.tabs button.active,.primary{background:#2059a7;color:white}
+.primary{width:100%;border:0;border-radius:10px;padding:13px;margin-top:12px}
+.option{display:block;background:#f4f7fb;padding:11px;border-radius:9px;margin:8px 0}
+.progress{height:9px;background:#e4eaf2;border-radius:10px;overflow:hidden}.bar{height:100%;background:#25865a;width:0}
+</style></head><body>
+<header><h1>📘 GRAMMAR MASTER</h1><p>Class 9–12 · Hindi + English · Offline Learning</p></header>
+<main>
+<h2>अपना कोर्स चुनें</h2><div class="sub" id="courses"></div>
+<h2 id="courseTitle">Tenses</h2><div class="topics" id="topics"></div>
+<section class="panel" id="lesson"><b>Lesson</b><p>कोर्स चुनकर पाठ शुरू करें।</p></section>
+<div class="panel"><b>आपकी Progress</b><p id="count" class="muted">0 topics completed</p><div class="progress"><div class="bar" id="bar"></div></div></div>
+</main>
+<script>
+const data={
+"Tenses":{icon:"⏱️",desc:"12 Tenses, पहचान और नियम",topics:["Present Indefinite","Present Continuous","Present Perfect","Present Perfect Continuous","Past Indefinite","Past Continuous","Past Perfect","Past Perfect Continuous","Future Indefinite","Future Continuous","Future Perfect","Future Perfect Continuous"]},
+"Modals":{icon:"📖",desc:"Can, Could, May, Must, Should",topics:["Can / Could","May / Might","Shall / Should","Will / Would","Must / Have to","Ought to / Need / Dare"]},
+"Active & Passive Voice":{icon:"🔁",desc:"वाच्य परिवर्तन",topics:["Subject और Object","Present Tense Voice","Past Tense Voice","Future Tense Voice","Negative Sentences","Interrogative Sentences","Imperative Sentences"]},
+"Direct & Indirect Speech":{icon:"💬",desc:"कथन परिवर्तन",topics:["Reporting Verb","Pronoun Change","Tense Change","Time and Place Change","Assertive Sentences","Interrogative Sentences","Commands and Requests"]}
+};
+let current="Tenses",selected=data.Tenses.topics[0],tab="Lesson";
+let done=JSON.parse(localStorage.getItem("gm_done")||"[]");
+const lessons={
+"Present Indefinite":`<b>Present Indefinite Tense (वर्तमान सामान्य काल)</b><p>पहचान: वाक्य के अंत में ता है, ती है, ते हैं आता है।</p><b>Positive:</b> Subject + V1(s/es) + Object<br><b>Negative:</b> Subject + do/does + not + V1<br><b>Question:</b> Do/Does + Subject + V1?<p>He, She, It और एकवचन नाम के साथ Positive में verb में s/es लगता है।`,
+"Can / Could":`<b>Modals</b><p>Can = सकता/सकती है (क्षमता या अनुमति)<br>Could = सकता था; विनम्र अनुरोध</p><b>Formula:</b> Subject + can/could + V1<br><p>Example: I can swim. — मैं तैर सकता हूँ।</p>`,
+"Subject और Object":`<b>Subject और Object</b><p>Subject वह होता है जो काम करता है। Object वह होता है जिस पर काम होता है।</p><p>Active: Ram writes a letter.<br>Subject = Ram, Object = a letter</p>`,
+"Reporting Verb":`<b>Reporting Verb</b><p>किसी के कहे हुए शब्द बताने वाली क्रिया को Reporting Verb कहते हैं।</p><p>Example: He <b>said</b>, "I am happy."</p>`
+};
+function render(){
+document.getElementById("courses").innerHTML=Object.entries(data).map(([n,v])=>`<button class="course ${n===current?'active':''}" onclick="chooseCourse('${n}')"><span style="font-size:24px">${v.icon}</span><b>${n}</b><span class="muted">${v.desc}</span></button>`).join("");
+document.getElementById("courseTitle").textContent=current;
+document.getElementById("topics").innerHTML=data[current].topics.map((t,i)=>`<button class="topic ${t===selected?'active':''}" onclick="chooseTopic('${t.replaceAll("'","\\'")}')">${i+1}. ${t} ${done.includes(current+'|'+t)?'✓':''}</button>`).join("");
+document.getElementById("count").textContent=done.length+" topics completed";
+let total=Object.values(data).reduce((a,v)=>a+v.topics.length,0);
+document.getElementById("bar").style.width=(done.length/total*100)+"%";
+showLesson();
+}
+function chooseCourse(n){current=n;selected=data[n].topics[0];render()}
+function chooseTopic(t){selected=t;render()}
+function showLesson(){
+let html=lessons[selected]||`<b>${selected}</b><p>इस पाठ में परिभाषा, नियम और उदाहरण सीखेंगे।</p><p>अभी इस विषय का विस्तृत पाठ अगले संस्करण में जोड़ा जाना है।</p>`;
+document.getElementById("lesson").innerHTML=`${html}<div class="tabs"><button onclick="quiz()">Practice Test</button><button onclick="markDone()">✓ पूरा हुआ</button></div><div id="quiz"></div>`;
+}
+function markDone(){let key=current+'|'+selected;if(!done.includes(key))done.push(key);localStorage.setItem("gm_done",JSON.stringify(done));render()}
+function quiz(){
+let q=current==="Tenses"?["He ___ to school daily.",["go","goes","going"],1]:
+current==="Modals"?["You ___ respect your teachers.",["should","is","are"],0]:
+current==="Active & Passive Voice"?["Passive: She writes a letter.",["A letter is written by her.","A letter wrote her."],0]:
+["Indirect: He said, “I am happy.”",["He said that he was happy.","He said that I am happy."],0];
+document.getElementById("quiz").innerHTML=`<b>${q[0]}</b>`+q[1].map((v,i)=>`<label class="option"><input type="radio" name="ans" value="${i}"> ${v}</label>`).join("")+`<button class="primary" onclick="check(${q[2]})">Check Answer</button><p id="feedback"></p>`;
+}
+function check(correct){let v=document.querySelector('input[name=ans]:checked');document.getElementById("feedback").textContent=!v?"पहले उत्तर चुनें।":Number(v.value)===correct?"सही जवाब! 🎉":"फिर कोशिश करो। सही उत्तर विकल्प "+(correct+1)+" है।"}
+render();
+</script></body></html>
